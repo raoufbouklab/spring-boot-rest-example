@@ -18,6 +18,8 @@ The following guides illustrate how to use some features concretely:
 * [Accessing data with MySQL](https://spring.io/guides/gs/accessing-data-mysql/)
 
 ### Run the app in docker
-`mvn clean package`
-`docker build -f Dockerfile -t springboot-bookstore:latest .`
-`docker-compose up`
+```
+mvn clean package
+docker build -f Dockerfile -t springboot-bookstore:latest .
+docker-compose up
+```

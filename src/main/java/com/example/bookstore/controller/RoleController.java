@@ -66,11 +66,11 @@ public class RoleController {
     }
 
     @ApiOperation(value = "Delete role")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Long> deleteRole(@PathVariable Long id) {
+    @DeleteMapping("/{name}")
+    public ResponseEntity<String> deleteRole(@PathVariable String name) {
         try {
-            roleService.deleteRole(id);
-            return new ResponseEntity<>(id, HttpStatus.OK);
+            roleService.deleteRole(name);
+            return new ResponseEntity<>(name, HttpStatus.OK);
         } catch (RoleNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }

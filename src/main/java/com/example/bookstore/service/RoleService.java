@@ -13,7 +13,7 @@ public interface RoleService {
 
     Role addRole(RoleDTO roleDTO);
 
-    void deleteRole(Long id);
+    void deleteRole(String name);
 
     Role updateRole(RoleDTO roleDTO);
 }

@@ -43,30 +43,28 @@ public class RoleServiceImpl implements RoleService {
 
     public Role addRole(RoleDTO roleDTO) {
         logger.info("Add role : {}", roleDTO.getName());
-        if (roleRepository.existsById(roleDTO.getId())) {
+        Optional<Role> role = roleRepository.findRoleByName(roleDTO.getName());
+        if (role.isPresent()) {
             throw new RoleFoundException(ROLE_EXIST);
-        } else {
-            Optional<Role> result = roleRepository.findRoleByName(roleDTO.getName());
-            if (result.isPresent()) {
-                throw new RoleFoundException(ROLE_EXIST);
-            }
-            return roleRepository.save(new Role(roleDTO.getId(), roleDTO.getName()));
         }
+        return roleRepository.save(new Role(roleDTO.getName()));
     }
 
     public Role updateRole(RoleDTO roleDTO) {
         logger.info("Update role : {}", roleDTO.getName());
-        if (roleRepository.existsById(roleDTO.getId())) {
-            return roleRepository.save(new Role(roleDTO.getId(), roleDTO.getName()));
+        Optional<Role> role = roleRepository.findRoleByName(roleDTO.getName());
+        if (role.isPresent()) {
+            return roleRepository.save(new Role(roleDTO.getName()));
         } else {
             throw new RoleNotFoundException(ROLE_NOT_FOUND);
         }
     }
 
-    public void deleteRole(Long id) {
-        logger.info("Delete role : {}", id);
-        if (roleRepository.existsById(id)) {
-            roleRepository.deleteById(id);
+    public void deleteRole(String name) {
+        logger.info("Delete role : {}", name);
+        Optional<Role> role = roleRepository.findRoleByName(name);
+        if (role.isPresent()) {
+            roleRepository.deleteByName(name);
         } else {
             throw new RoleNotFoundException(ROLE_NOT_FOUND);
         }

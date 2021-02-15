@@ -2,7 +2,6 @@ package com.example.bookstore.service.impl;
 
 import com.example.bookstore.dto.UserDTO;
 import com.example.bookstore.dto.UserLoginDTO;
-import com.example.bookstore.exception.RoleNotFoundException;
 import com.example.bookstore.exception.UserFoundException;
 import com.example.bookstore.exception.UserNotFoundException;
 import com.example.bookstore.model.Role;
@@ -15,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -23,7 +23,6 @@ import java.util.Set;
 public class UserServiceImpl implements UserService {
 
     public static final String USER_NOT_FOUND = "User not found";
-    public static final String ROLE_NOT_FOUND = "Role not found";
     private final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -66,20 +65,10 @@ public class UserServiceImpl implements UserService {
         logger.info("Add user: {}  {}", userDTO.getFirstName(), userDTO.getLastName());
         Optional<User> user = userRepository.findUserByUsername(userDTO.getUsername());
         if (user.isEmpty()) {
-            Set<Role> roles = userDTO.getRoles();
-            if (roles == null || roles.isEmpty()) {
-                Optional<Role> userRole = roleRepository.findRoleByName("USER");
-                assert roles != null;
-                userRole.ifPresent(roles::add);
-            } else {
-                roles.forEach(role -> {
-                    Optional<Role> userRole = roleRepository.findRoleByName(role.getName());
-                    if (userRole.isEmpty()) {
-                        throw new RoleNotFoundException(ROLE_NOT_FOUND);
-                    }
-                });
-            }
-            User newUser = new User(userDTO.getId(), userDTO.getUsername(), userDTO.getFirstName(), userDTO.getLastName(), userDTO.getEmail(), userDTO.getPassword(), true, roles);
+            Set<Role> roles = new HashSet<>();
+            Optional<Role> userRole = roleRepository.findRoleByName("USER");
+            userRole.ifPresent(roles::add);
+            User newUser = new User(userDTO.getUsername(), userDTO.getFirstName(), userDTO.getLastName(), userDTO.getEmail(), userDTO.getPassword(), true, roles);
             return userRepository.save(newUser);
         } else {
             throw new UserFoundException("An other user found with the same username = " + userDTO.getUsername());
@@ -89,9 +78,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public User updateUser(UserDTO userDTO) {
         logger.info("Update user: {} {}", userDTO.getFirstName(), userDTO.getLastName());
-        if (userRepository.existsById(userDTO.getId())) {
-            User newUser = new User(userDTO.getId(), userDTO.getUsername(), userDTO.getFirstName(), userDTO.getLastName(), userDTO.getEmail(), userDTO.getPassword(), true, userDTO.getRoles());
-            return userRepository.save(newUser);
+        Optional<User> user = userRepository.findUserByUsername(userDTO.getUsername());
+        if (user.isPresent()) {
+            user.get().setUsername(userDTO.getUsername());
+            user.get().setFirstName(userDTO.getFirstName());
+            user.get().setLastName(userDTO.getLastName());
+            user.get().setEmail(userDTO.getEmail());
+            user.get().setActive(userDTO.isActive());
+            user.get().setPassword(userDTO.getPassword());
+            return userRepository.save(user.get());
         } else {
             throw new UserNotFoundException(USER_NOT_FOUND);
         }
