@@ -11,7 +11,7 @@ services:
     ports:
       - 3306:3306
     volumes:
-      - /data/mysql
+      - my-datavolume: /var/lib/mysql
 
   bookstore-api:
     image: springboot-bookstore:latest
@@ -23,3 +23,5 @@ services:
       - mysql-db
     ports:
       - 8082:8082
+volumes:
+  my-datavolume:

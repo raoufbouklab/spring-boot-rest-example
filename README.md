@@ -18,8 +18,9 @@ The following guides illustrate how to use some features concretely:
 ```
 cd springboot-bookstore
 
-mvn clean package
-docker-compose up
+mvn clean install
+
+docker-compose up --build
 ```
 # Test the application :
 
