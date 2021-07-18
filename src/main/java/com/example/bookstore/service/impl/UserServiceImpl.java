@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
             Set<Role> roles = new HashSet<>();
             Optional<Role> userRole = roleRepository.findRoleByName("USER");
             userRole.ifPresent(roles::add);
-            User newUser = new User(userDTO.getUsername(), userDTO.getFirstName(), userDTO.getLastName(), userDTO.getEmail(), userDTO.getPassword(), true, roles);
+            var newUser = new User(userDTO.getUsername(), userDTO.getFirstName(), userDTO.getLastName(), userDTO.getEmail(), userDTO.getPassword(), true, roles);
             return userRepository.save(newUser);
         } else {
             throw new UserFoundException("An other user found with the same username = " + userDTO.getUsername());
@@ -95,9 +95,7 @@ public class UserServiceImpl implements UserService {
         logger.info("Delete user: {}", id);
         Optional<User> user = userRepository.findById(id);
         if (user.isPresent()) {
-            User newUser = new User(user.get().getId(), user.get().getUsername(), user.get().getFirstName(), user.get().getLastName(), user.get().getEmail(),
-                    user.get().getPassword(), false, user.get().getRoles());
-            userRepository.save(newUser);
+            userRepository.delete(user.get());
         } else {
             throw new UserNotFoundException(USER_NOT_FOUND);
         }

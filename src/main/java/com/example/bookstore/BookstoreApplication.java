@@ -22,17 +22,34 @@ public class BookstoreApplication {
     CommandLineRunner init(RoleRepository roleRepository, UserRepository userRepository) {
 
         return args -> {
-            var role1 = new Role((long) 1, "ADMIN");
-            var role2 = new Role((long) 2, "USER");
-            roleRepository.save(role1);
-            roleRepository.save(role2);
+            var role1 = new Role("ADMIN");
+            var role2 = new Role("USER");
+            addRoleIfNotExist(roleRepository, role1);
+            addRoleIfNotExist(roleRepository, role2);
             roleRepository.findAll().forEach(role -> logger.info(role.toString()));
 
             var roles = Set.of(role1, role2);
-            userRepository.save(new User((long) 1, "raoufb", "Raouf", "Bouklab", "raouf.bouklab@test.ca", "password", true, roles));
+            var newUser = new User("raoufb", "Raouf", "Bouklab", "raouf.bouklab@test.ca", "password", true, roles);
+
+            addUserIfNotExist(userRepository, newUser);
             userRepository.findAll().forEach(user -> logger.info(user.toString()));
         };
     }
+
+    private void addRoleIfNotExist(RoleRepository roleRepository, Role role) {
+        var roleFound = roleRepository.findRoleByName(role.getName());
+        if (roleFound.isEmpty()){
+            roleRepository.save(role);
+        }
+    }
+
+    private void addUserIfNotExist(UserRepository userRepository, User user) {
+        var userFound = userRepository.findUserByUsername(user.getUsername());
+        if (userFound.isEmpty()){
+            userRepository.save(user);
+        }
+    }
+
 
     public static void main(String[] args) {
         SpringApplication.run(BookstoreApplication.class, args);
