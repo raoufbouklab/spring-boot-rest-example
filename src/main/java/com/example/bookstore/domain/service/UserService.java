@@ -1,14 +1,13 @@
-package com.example.bookstore.service.impl;
+package com.example.bookstore.domain.service;
 
-import com.example.bookstore.dto.UserDTO;
-import com.example.bookstore.dto.UserLoginDTO;
-import com.example.bookstore.exception.UserFoundException;
-import com.example.bookstore.exception.UserNotFoundException;
-import com.example.bookstore.model.Role;
-import com.example.bookstore.model.User;
-import com.example.bookstore.repository.RoleRepository;
-import com.example.bookstore.repository.UserRepository;
-import com.example.bookstore.service.UserService;
+import com.example.bookstore.domain.dto.UserDTO;
+import com.example.bookstore.domain.dto.UserLoginDTO;
+import com.example.bookstore.domain.exception.FoundException;
+import com.example.bookstore.domain.exception.NotFoundException;
+import com.example.bookstore.domain.model.Role;
+import com.example.bookstore.domain.model.User;
+import com.example.bookstore.domain.repository.RoleRepository;
+import com.example.bookstore.domain.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -20,14 +19,14 @@ import java.util.Optional;
 import java.util.Set;
 
 @Service
-public class UserServiceImpl implements UserService {
+public class UserService {
 
     public static final String USER_NOT_FOUND = "User not found";
-    private final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
 
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
     }
@@ -40,11 +39,10 @@ public class UserServiceImpl implements UserService {
     public User findUser(Long id) {
         logger.info("Get user by id : {} ", id);
         Optional<User> user = userRepository.findById(id);
-        if (user.isPresent()) {
-            return user.get();
-        } else {
-            throw new UserNotFoundException(USER_NOT_FOUND);
+        if (user.isEmpty()) {
+            throw new NotFoundException(USER_NOT_FOUND);
         }
+        return user.get();
     }
 
     public User login(@Valid UserLoginDTO userLoginDTO) {
@@ -57,7 +55,7 @@ public class UserServiceImpl implements UserService {
             if (user.isPresent()) {
                 return user.get();
             }
-            throw new UserNotFoundException(USER_NOT_FOUND);
+            throw new NotFoundException("Incorrect username or password");
         }
     }
 
@@ -71,33 +69,30 @@ public class UserServiceImpl implements UserService {
             var newUser = new User(userDTO.getUsername(), userDTO.getFirstName(), userDTO.getLastName(), userDTO.getEmail(), userDTO.getPassword(), true, roles);
             return userRepository.save(newUser);
         } else {
-            throw new UserFoundException("An other user found with the same username = " + userDTO.getUsername());
+            throw new FoundException("An other user found with the same username = " + userDTO.getUsername());
         }
     }
 
-    @Override
     public User updateUser(UserDTO userDTO) {
         logger.info("Update user: {} {}", userDTO.getFirstName(), userDTO.getLastName());
         Optional<User> user = userRepository.findUserByUsername(userDTO.getUsername());
-        if (user.isPresent()) {
-            user.get().setUsername(userDTO.getUsername());
-            user.get().setFirstName(userDTO.getFirstName());
-            user.get().setLastName(userDTO.getLastName());
-            user.get().setEmail(userDTO.getEmail());
-            user.get().setPassword(userDTO.getPassword());
-            return userRepository.save(user.get());
-        } else {
-            throw new UserNotFoundException(USER_NOT_FOUND);
+        if (user.isEmpty()) {
+            throw new NotFoundException(USER_NOT_FOUND);
         }
+        user.get().setUsername(userDTO.getUsername());
+        user.get().setFirstName(userDTO.getFirstName());
+        user.get().setLastName(userDTO.getLastName());
+        user.get().setEmail(userDTO.getEmail());
+        user.get().setPassword(userDTO.getPassword());
+        return userRepository.save(user.get());
     }
 
     public void deleteUser(Long id) {
         logger.info("Delete user: {}", id);
         Optional<User> user = userRepository.findById(id);
-        if (user.isPresent()) {
-            userRepository.delete(user.get());
-        } else {
-            throw new UserNotFoundException(USER_NOT_FOUND);
+        if (user.isEmpty()) {
+            throw new NotFoundException(USER_NOT_FOUND);
         }
+        userRepository.delete(user.get());
     }
 }

@@ -1,4 +1,4 @@
-package com.example.bookstore.dto;
+package com.example.bookstore.domain.dto;
 
 import lombok.Data;
 

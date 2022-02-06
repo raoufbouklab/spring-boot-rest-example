@@ -1,4 +1,4 @@
-# Getting Started
+# Sample REST CRUD API with Spring Boot, Mysql, JPA and Hibernate
 
 ### Reference Documentation
 For further reference, please consider the following sections:
@@ -16,7 +16,7 @@ The following guides illustrate how to use some features concretely:
 
 ### Run the app in docker
 ```
-cd springboot-bookstore
+cd spring-boot-rest-example
 
 mvn clean install
 
@@ -50,4 +50,8 @@ select * from user_role;
 # Test the application :
 
 Browse to the app at http://localhost:8082/swagger-ui.html#/
+
+# The app defines following CRUD APIs.
+![role-api](./role-api.JPG)
+![user-api](./user-api.JPG)
 

@@ -1,4 +1,4 @@
-package com.example.bookstore.exception;
+package com.example.bookstore.domain.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
